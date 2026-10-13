@@ -1,0 +1,128 @@
+{
+  "model": "nirmol-xgb-v1",
+  "trained_at": "2026-10-13T09:19:42+00:00",
+  "target": "US Embassy Dhaka hourly PM2.5 (ug/m3), log1p-transformed",
+  "train_period": [
+    "2022-08-15 00:00:00",
+    "2024-10-31 20:00:00"
+  ],
+  "test_period": [
+    "2024-11-01 00:00:00",
+    "2025-03-24 12:00:00"
+  ],
+  "features": [
+    "hour",
+    "month_sin",
+    "month_cos",
+    "weekend",
+    "is_winter",
+    "cams_pm2_5",
+    "cams_pm10",
+    "cams_carbon_monoxide",
+    "cams_dust",
+    "cams_pm2_5_log",
+    "cams_pm2_5_mean24",
+    "temperature_2m",
+    "relative_humidity_2m",
+    "dew_point_2m",
+    "precipitation",
+    "surface_pressure",
+    "cloud_cover",
+    "wind_speed_10m",
+    "shortwave_radiation",
+    "wind_u",
+    "wind_v",
+    "rain_24h",
+    "pressure_change_24h",
+    "wind_mean_12h"
+  ],
+  "metrics_test": {
+    "nirmol_model": {
+      "mae": 51.13489710003006,
+      "rmse": 76.57079770341505,
+      "bias": -21.53157442118177,
+      "n": 3395
+    },
+    "raw_cams": {
+      "mae": 80.25313696612666,
+      "rmse": 108.57822470784335,
+      "bias": -76.8637407952872,
+      "n": 3395
+    },
+    "persistence_1h_offline_only": {
+      "mae": 26.44868735083532,
+      "rmse": 46.47255201398051,
+      "bias": -0.15274463007159905,
+      "n": 3352
+    },
+    "persistence_3h_offline_only": {
+      "mae": 51.126718469814705,
+      "rmse": 77.64193566199457,
+      "bias": -0.31918708906156606,
+      "n": 3346
+    },
+    "persistence_6h_offline_only": {
+      "mae": 75.75545590433482,
+      "rmse": 106.46230797532048,
+      "bias": -0.26547085201793724,
+      "n": 3345
+    },
+    "persistence_12h_offline_only": {
+      "mae": 93.11313977850944,
+      "rmse": 127.54144821066268,
+      "bias": 0.058365758754863814,
+      "n": 3341
+    },
+    "persistence_24h_offline_only": {
+      "mae": 61.41526946107784,
+      "rmse": 95.16992524247712,
+      "bias": -0.22604790419161677,
+      "n": 3340
+    }
+  },
+  "metrics_test_winter": {
+    "nirmol_model": {
+      "mae": 53.491810451548005,
+      "rmse": 78.31940004573731,
+      "bias": -20.338563440545286,
+      "n": 2830
+    },
+    "raw_cams": {
+      "mae": 84.21689045936397,
+      "rmse": 112.67080890901607,
+      "bias": -80.24247349823322,
+      "n": 2830
+    }
+  },
+  "interval_p10_p90_coverage": 0.6807069219440354,
+  "cams_winter_bias": {
+    "winter_mean_measured": 170.30254439438113,
+    "winter_mean_cams_same_hours": 80.88176517360192
+  },
+  "shap_importance": {
+    "cams_pm2_5": 0.21789999306201935,
+    "temperature_2m": 0.16249999403953552,
+    "cams_pm2_5_mean24": 0.11129999905824661,
+    "dew_point_2m": 0.06719999760389328,
+    "month_sin": 0.05130000039935112,
+    "month_cos": 0.03920000046491623,
+    "rain_24h": 0.03830000013113022,
+    "cams_pm2_5_log": 0.03720000013709068,
+    "surface_pressure": 0.030400000512599945,
+    "cams_pm10": 0.025499999523162842,
+    "is_winter": 0.023099999874830246,
+    "hour": 0.02199999988079071,
+    "wind_mean_12h": 0.020999999716877937,
+    "cams_carbon_monoxide": 0.01940000057220459,
+    "wind_v": 0.01850000023841858,
+    "relative_humidity_2m": 0.014600000344216824,
+    "cloud_cover": 0.013299999758601189,
+    "cams_dust": 0.012000000104308128,
+    "pressure_change_24h": 0.008899999782443047,
+    "wind_speed_10m": 0.00839999970048666,
+    "shortwave_radiation": 0.007499999832361937,
+    "wind_u": 0.005799999926239252,
+    "weekend": 0.00559999980032444,
+    "precipitation": 0.0008999999845400453
+  }
+}

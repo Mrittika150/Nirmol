@@ -1,6 +1,6 @@
 # Nirmol — Agreed Hackathon Plan
 
-Agreed 10 Oct 2026. Submission 14 Oct 2026. Team of 3.
+Agreed 10 Oct 2026; updated 13 Oct. Submission **18 Oct 2026** (extended from 14 Oct). Team of 3. Claude writes the code; the team handles accounts, testing, photos, Bangla wording, slides and the demo.
 
 **Pitch:** Bangla-first, mobile-first web app that forecasts PM2.5, turns it into personal decisions, and lets citizens report pollution sources. Framed around the winter smog season; covers all of Bangladesh.
 
@@ -9,7 +9,7 @@ Agreed 10 Oct 2026. Submission 14 Oct 2026. Team of 3.
 | # | Feature | Agreed version |
 |---|---|---|
 | 1 | Live monitoring | All of Bangladesh. PM2.5 µg/m³ is the main number; US EPA AQI as a labelled secondary value. Every value tagged *Measured* / *Model estimate* / *Demo*, with its age. |
-| 2 | Forecast | Own XGBoost model for Dhaka (24h), tested against persistence and CAMS. Elsewhere: CAMS forecast, labelled. No 48h claim. |
+| 2 | Forecast | Own XGBoost **CAMS-correction model** for Dhaka (24h): predicts the US Embassy's measured PM2.5 from the CAMS forecast + weather forecast + calendar, so it runs live. Train Aug 2022–Oct 2024, held-out test Nov 2024–Mar 2025. Compared with raw CAMS and (offline only) persistence. Elsewhere: raw CAMS with a note that global models often underestimate winter pollution in Bangladesh (only if the data confirms it). No 48h claim. Pipeline: `jobs/build_training_data.py` → `ml/train_forecast.py` → `docs/model_evaluation.md`. |
 | 3 | Personal exposure | Nirmol Exposure Indicator = PM2.5 × hours × activity factor (rest 1.0 / walking 1.5 / cycling or labour 2.5). Sensitive groups (under-12, over-65, respiratory/heart, pregnant) get stricter thresholds, same calculation. Shown as low / moderate / high / very high, never as a health-risk %. |
 | 4 | Travel time | Lowest-exposure window inside the user's allowed departure range. Always relative ("lower than other options"), never "safe". |
 | 5 | Routes | openrouteservice routes compared by **duration only**; states street-level pollution is unknown. Walk → foot, rickshaw → cycling route (resting factor), bus/CNG/car → driving route; AC car gets a note, no number. |
@@ -49,10 +49,11 @@ No separate FastAPI server. Moderators are team members with Supabase logins.
 - Unavailable is not zero.
 - Never show historical or demo values as current; always show their date.
 - Do not treat the Mendeley "Bangladesh AQI 2000–2025" dataset as measured data until audited; it is likely model output.
-- If OpenAQ has no Dhaka station data after March 2025 (US Embassy feed appears stopped), use DoE stations or CAMS for live values, labelled accordingly.
+- Confirmed by audit: the US Embassy feed (OpenAQ location 8415) stopped 24 Mar 2025. No DoE stations on OpenAQ. Live measurements come only from ~9 AirGradient low-cost sensors (7 in Dhaka, Gazipur, Khulna).
+- Dhaka's main live number: "Model estimate – CAMS corrected by Nirmol". AirGradient sensors appear as "Low-cost sensor" map dots only if they reported in the last 3 hours.
 
 ## Forecast go/no-go
-**Midday 12 Oct.** If the Dhaka model does not clearly beat persistence and CAMS on a held-out winter, ship the CAMS forecast (labelled) and present the evaluation as research.
+**End of 14 Oct.** If the Dhaka model does not clearly beat persistence and CAMS on a held-out winter, ship the CAMS forecast (labelled) and present the evaluation as research.
 
 ## Cut order if behind
 1. Route comparison (keep departure-time advice)
@@ -63,13 +64,16 @@ Never cut: dashboard, travel-time advice, photo reporting, moderated map, adviso
 
 ## Schedule
 
-| Day | A — ML/data | B — Backend + AI | C — Frontend |
-|---|---|---|---|
-| 10 Oct (tonight) | OpenAQ key; list Bangladesh stations and date ranges | Supabase project; Gemini + openrouteservice keys | Repo, Next.js, Vercel, Bangla/English text system |
-| 11 Oct | Data audit, download history, baselines | Tables, anonymous sign-in, report upload + classification | Onboarding/profile, dashboard with CAMS data |
-| 12 Oct | XGBoost train + test; **go/no-go at midday** | Exposure calculation, travel-window API, moderation | Trip planner, report screen, map |
-| 13 Oct | SHAP, hourly forecast job | Advisor + safety tests, routing, Google sign-in, rate limits | Connect all screens, mobile polish, loading/error states |
-| 14 Oct | Write up test results | Seed demo reports, security check | Demo video, slides |
+Done by 13 Oct: repo on GitHub, station audit, Supabase project, training pipeline scripts.
+
+| Day | Claude builds | Team does |
+|---|---|---|
+| 13 Oct | Dashboard (live CAMS for any location, AQI, weather, 24h chart, source labels) | Finish Supabase setup; get Gemini + openrouteservice keys; run data download + training; Vercel deploy |
+| 14 Oct | Hourly forecast job; onboarding/profile; exposure calculation; travel-time planner | Review results in `docs/model_evaluation.md`; **go/no-go**; photograph pollution sources |
+| 15 Oct | Photo reporting + Gemini classification; moderation screen; community map | Test reporting on phones; check Bangla wording |
+| 16 Oct | Bangla advisor chat + safety tests; route comparison; Google sign-in | Test the advisor with tricky questions; write pitch statistic + slides |
+| 17 Oct | Integration fixes, mobile polish, seed demo data | Full testing on phones; rehearse demo |
+| 18 Oct | Freeze | Record demo video; submit |
 
 ## Demo
 Live deployed site, plus a pre-recorded 3–4 minute backup video. Pre-approved sample reports and photos so the map is never empty. Rehearse 5 tested advisor questions.
