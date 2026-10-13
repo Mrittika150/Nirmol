@@ -1,26 +1,36 @@
 @import "tailwindcss";
 
+/* Nirmol palette: navy/charcoal analytical surfaces, teal accent, restrained warnings. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f4f7f8;
+  --foreground: #0f1b2d;
+  --card: #ffffff;
+  --soft: #e8f0f1;
+  --border: #d6e0e3;
+  --muted: #5b6b7c;
+  --accent: #0f8b8d;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0b1220;
+    --foreground: #e6edf3;
+    --card: #111a2c;
+    --soft: #17233a;
+    --border: #22314d;
+    --muted: #93a3b8;
+    --accent: #2bb3b1;
+  }
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-inter), var(--font-bengali), system-ui, sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), var(--font-bengali), system-ui, sans-serif;
 }
