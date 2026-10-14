@@ -1,6 +1,6 @@
 {
   "model": "nirmol-xgb-v1",
-  "trained_at": "2026-10-13T09:19:42+00:00",
+  "trained_at": "2026-10-13T10:25:32+00:00",
   "target": "US Embassy Dhaka hourly PM2.5 (ug/m3), log1p-transformed",
   "train_period": [
     "2022-08-15 00:00:00",
@@ -94,7 +94,8 @@
       "n": 2830
     }
   },
-  "interval_p10_p90_coverage": 0.6807069219440354,
+  "interval_p10_p90_coverage": 0.8144329896907216,
+  "interval_log_adjust": 0.12596368814290132,
   "cams_winter_bias": {
     "winter_mean_measured": 170.30254439438113,
     "winter_mean_cams_same_hours": 80.88176517360192

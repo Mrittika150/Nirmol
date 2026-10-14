@@ -29,6 +29,7 @@ ARTIFACTS = ROOT / "ml" / "artifacts"
 REPORT = ROOT / "docs" / "model_evaluation.md"
 
 TEST_START = "2024-11-01"
+CALIB_START = "2023-11-01"  # interval calibration period: Nov 2023 - Oct 2024
 WINTER_MONTHS = [11, 12, 1, 2]
 PERSISTENCE_HOURS = [1, 3, 6, 12, 24]
 QUANTILES = {"p10": 0.1, "p50": 0.5, "p90": 0.9}
@@ -83,15 +84,38 @@ def main() -> None:
     test = has_y & (raw.index >= TEST_START)
     print(f"Train hours: {train.sum()}, test hours: {test.sum()}")
 
+    # Calibrate the 80% interval (conformalized quantile regression): fit the p10/p90
+    # models on data before the 2023-24 winter, measure how far real values fall
+    # outside the band from Nov 2023 to Oct 2024, and widen the final band by that much.
+    fit_early = train & (raw.index < CALIB_START)
+    calib = train & (raw.index >= CALIB_START)
+    log_y = np.log1p(y_all)
+    early = {}
+    for name in ("p10", "p90"):
+        m = xgb.XGBRegressor(objective="reg:quantileerror", quantile_alpha=QUANTILES[name], **PARAMS)
+        m.fit(X_all[fit_early], log_y[fit_early])
+        early[name] = m.predict(X_all[calib])
+    outside = np.maximum(early["p10"] - log_y[calib], log_y[calib] - early["p90"])
+    n = len(outside)
+    interval_adjust = float(np.quantile(outside, min(1.0, 0.8 * (n + 1) / n)))
+    print(f"Interval adjustment (log scale): {interval_adjust:+.3f}")
+
     ARTIFACTS.mkdir(parents=True, exist_ok=True)
-    preds = {}
+    log_preds = {}
     for name, q in QUANTILES.items():
         model = xgb.XGBRegressor(objective="reg:quantileerror", quantile_alpha=q, **PARAMS)
-        model.fit(X_all[train], np.log1p(y_all[train]))
-        preds[name] = pd.Series(np.expm1(model.predict(X_all[test])), index=X_all[test].index)
+        model.fit(X_all[train], log_y[train])
+        log_preds[name] = model.predict(X_all[test])
         model.save_model(ARTIFACTS / f"nirmol_xgb_v1_{name}.json")
         if name == "p50":
             median_model = model
+    idx = X_all[test].index
+    p50 = log_preds["p50"]
+    preds = {
+        "p50": pd.Series(np.expm1(p50), index=idx),
+        "p10": pd.Series(np.expm1(np.minimum(log_preds["p10"] - interval_adjust, p50)), index=idx),
+        "p90": pd.Series(np.expm1(np.maximum(log_preds["p90"] + interval_adjust, p50)), index=idx),
+    }
 
     y = y_all[test]
     winter = y.index.month.isin(WINTER_MONTHS)
@@ -130,6 +154,7 @@ def main() -> None:
         "metrics_test": results,
         "metrics_test_winter": winter_results,
         "interval_p10_p90_coverage": coverage,
+        "interval_log_adjust": interval_adjust,
         "cams_winter_bias": cams_bias,
         "shap_importance": importance,
     }
